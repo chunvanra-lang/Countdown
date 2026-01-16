@@ -11,7 +11,7 @@ body {
   align-items: center;
   height: 100vh;
   margin: 0;
-  background: radial-gradient(circle at center, #050a0f 0%, #020409 100%);
+  background: transparent;
   color: #8dfcff;
 }
 
@@ -61,6 +61,14 @@ body {
   color: #baffff;
   text-shadow: 0 0 6px rgba(186, 255, 255, 0.5);
 }
+  .footer {
+  margin-top: 18px;
+  font-size: 11px;
+  letter-spacing: 4px;
+  font-weight: 500;
+  color: rgba(160, 200, 210, 0.45);
+  text-transform: uppercase;
+}
 </style>
 </head>
 
@@ -76,9 +84,10 @@ body {
       <div class="box"><span id="secs"></span><br>secs</div>
     </div>
 
-   <div class="footer">THE MAN PARTNERSHIP</div>
- </div>
-
+    <div class="footer">THE MAN PARTNERSHIP</div>
+  </div>
+</body>
+  
 <script>
 const target = new Date(new Date().getFullYear(), 11, 31, 23, 59, 59);
 
@@ -103,3 +112,4 @@ update();
 
 </body>
 </html>
+
