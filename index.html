@@ -11,7 +11,7 @@ body {
   align-items: center;
   height: 100vh;
   margin: 0;
-  background: transparent;
+  background: #0c1116;
   color: #8dfcff;
 }
 
@@ -38,13 +38,16 @@ body {
 
 .row {
   display: flex;
-  gap: 10px;
+  gap: 12px;
+  flex-wrap: wrap;
+  justify-content: center;
 }
 
 .box {
   border: 1px solid rgba(141, 252, 255, 0.5);
-  padding: 14px 18px;
-  min-width: 70px;
+  padding: 14px;
+  min-width: 90px;
+  max-width: 120px;
   text-align: center;
   font-size: 16px;
   letter-spacing: 1px;
@@ -98,6 +101,26 @@ body {
     transparent
   );
 }
+  @media (max-width: 600px) {
+  .title {
+    font-size: 14px;
+    letter-spacing: 3px;
+  }
+
+  .subtitle {
+    font-size: 11px;
+  }
+
+  .box span {
+    font-size: 22px;
+  }
+
+  .footer {
+    font-size: 10px;
+    letter-spacing: 3px;
+  }
+}
+
 </style>
 </head>
 
@@ -143,5 +166,6 @@ update();
 
 </body>
 </html>
+
 
 
