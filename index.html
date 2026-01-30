@@ -1,171 +1,799 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>Year Countdown</title>
-<style>
-body {
-  font-family: "JetBrains Mono", monospace;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
-  margin: 0;
-  background: #0c1116;
-  color: #8dfcff;
-}
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Countdown OS</title>
 
-.container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
+  <style>
+    :root{
+      --bg0:#05070b;
+      --bg1:#070b10;
 
-.title {
-  font-size: 16px;
-  letter-spacing: 3px;
-  margin-bottom: 6px;
-  color: #baffff;
-  text-shadow: 0 0 6px rgba(186, 255, 255, 0.4);
-}
+      --panel: rgba(10, 18, 28, 0.56);
+      --panel2: rgba(5, 12, 20, 0.30);
 
-.subtitle {
-  font-size: 11px;
-  letter-spacing: 1.5px;
-  margin-bottom: 14px;
-  color: rgba(186, 255, 255, 0.5);
-}
+      --text: rgba(235, 247, 255, 0.93);
+      --muted: rgba(230, 245, 255, 0.62);
 
-.row {
-  display: flex;
-  gap: 12px;
-  flex-wrap: wrap;
-  justify-content: center;
-}
+      --a: rgba(120, 220, 255, 0.95); /* cyan */
+      --b: rgba(0, 255, 200, 0.80);   /* mint */
+      --borderSoft: rgba(120, 220, 255, 0.12);
+    }
 
-.box {
-  border: 1px solid rgba(141, 252, 255, 0.5);
-  padding: 14px;
-  min-width: 90px;
-  max-width: 120px;
-  text-align: center;
-  font-size: 16px;
-  letter-spacing: 1px;
-  border-radius: 8px;
-  background: linear-gradient(145deg, rgba(5,15,25,0.6), rgba(2,6,12,0.9));
-  box-shadow:
-    0 0 8px rgba(141, 252, 255, 0.2),
-    inset 0 0 6px rgba(141, 252, 255, 0.05);
-}
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
 
-.box span {
-  font-size: 22px;
-  font-weight: 600;
-  color: #baffff;
-  text-shadow: 0 0 6px rgba(186, 255, 255, 0.5);
-}
- .footer {
-  margin-top: 22px;
-  text-align: center;
-}
+    body{
+      margin:0;
+      color:var(--text);
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+      overflow-x:hidden;
 
-.brand {
-  font-size: 11px;
-  letter-spacing: 5px;
-  font-weight: 600;
-  color: rgba(200, 235, 240, 0.85);
-  text-transform: uppercase;
-  text-shadow:
-    0 0 6px rgba(180, 230, 240, 0.45),
-    0 0 12px rgba(180, 230, 240, 0.25);
-}
+      background:
+        radial-gradient(1200px 600px at 55% 18%, rgba(80, 180, 255, 0.10), transparent 62%),
+        radial-gradient(900px 450px at 18% 80%, rgba(0, 255, 200, 0.07), transparent 72%),
+        linear-gradient(180deg, var(--bg0) 0%, var(--bg1) 55%, var(--bg0) 100%);
 
-.tagline {
-  margin-top: 6px;
-  font-size: 10px;
-  letter-spacing: 3px;
-  font-weight: 500;
-  color: rgba(170, 200, 210, 0.6);
-  text-transform: uppercase;
-}
-.footer::before {
-  content: "";
-  display: block;
-  width: 140px;
-  height: 1px;
-  margin: 0 auto 14px;
-  background: linear-gradient(
-    to right,
-    transparent,
-    rgba(180, 230, 240, 0.6),
-    transparent
-  );
-}
-  @media (max-width: 600px) {
-  .title {
-    font-size: 14px;
-    letter-spacing: 3px;
-  }
+      display:grid;
+      place-items:center;
+      padding: 18px 0;
+    }
 
-  .subtitle {
-    font-size: 11px;
-  }
+    /* ---------------- Particles behind everything ---------------- */
+    .particles{
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+      overflow: hidden;
+    }
+    .particle{
+      position:absolute;
+      width: 3px;
+      height: 3px;
+      border-radius: 50%;
+      background: rgba(120,220,255,0.35);
+      filter: blur(0.2px);
+      opacity: 0.35;
+      animation: drift linear infinite;
+    }
+    .particle.p2{ background: rgba(0,255,200,0.26); opacity: 0.26; }
+    @keyframes drift{
+      0%   { transform: translate3d(0, 0, 0); opacity: 0.00; }
+      15%  { opacity: 0.30; }
+      85%  { opacity: 0.22; }
+      100% { transform: translate3d(0, -120vh, 0); opacity: 0.00; }
+    }
 
-  .box span {
-    font-size: 22px;
-  }
+    /* ---------------- Wrapper ---------------- */
+    .wrap{
+      width: min(1100px, 92vw);
+      position: relative;
+      z-index: 1;
+      padding: 18px 12px 20px;
+    }
 
-  .footer {
-    font-size: 10px;
-    letter-spacing: 3px;
-  }
-}
+    /* ---------------- Header: desktop row (Name | Text) ---------------- */
+    .heroRow{
+      display:flex;
+      align-items:center;
+      justify-content:center;   /* center whole group */
+      gap: 18px;
+      margin: 4px 0 18px;
+      flex-wrap: nowrap;
+    }
 
-</style>
+    .nameBadge{
+      flex: 0 0 auto;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      padding: 10px 18px;
+      border-radius: 16px;
+      background: rgba(5, 12, 20, 0.22);
+      border: 1px solid rgba(120,220,255,0.14);
+      backdrop-filter: blur(10px);
+      box-shadow:
+        0 0 0 1px rgba(120,220,255,0.04) inset,
+        0 0 22px rgba(120,220,255,0.08);
+      position: relative;
+      overflow: hidden;
+    }
+    .name{
+      font-size: clamp(18px, 2.4vw, 30px);
+      letter-spacing: 0.34em;
+      text-transform: uppercase;
+      font-weight: 520;
+      color: rgba(240,250,255,0.95);
+      text-shadow:
+        0 0 12px rgba(120,220,255,0.12),
+        0 0 28px rgba(120,220,255,0.05);
+      padding-left: 0;
+      text-align: center;
+      white-space: nowrap;
+    }
+
+    .dividerV{
+      width: 1px;
+      height: 46px;
+      background: linear-gradient(
+        180deg,
+        transparent,
+        rgba(120,220,255,0.60),
+        rgba(0,255,200,0.38),
+        transparent
+      );
+      opacity: 0.9;
+      flex: 0 0 auto;
+    }
+
+    .heroText{
+      flex: 0 1 auto;
+      min-width: 0;
+      max-width: 760px;
+      text-align: left;
+      display:flex;
+      flex-direction:column;
+      gap: 8px;
+    }
+    .title{
+      margin:0;
+      font-size: clamp(16px, 2.2vw, 22px);
+      letter-spacing: 0.30em;
+      text-transform: uppercase;
+      font-weight: 700;
+      color: rgba(235,247,255,0.92);
+      text-shadow: 0 0 18px rgba(120,220,255,0.10);
+    }
+    .subtitle{
+      margin:0;
+      font-size: 12px;
+      letter-spacing: 0.20em;
+      text-transform: uppercase;
+      font-weight: 450;
+      color: rgba(230,245,255,0.62);
+      text-shadow: 0 0 12px rgba(120,220,255,0.06);
+    }
+
+    /* ---------------- Grid cards ---------------- */
+    .grid{
+      display:grid;
+      grid-template-columns: 1fr;
+      gap: 16px;
+    }
+    @media (min-width: 900px){
+      .grid{ grid-template-columns: 1fr 1fr; }
+    }
+
+    .card{
+      position: relative;
+      border-radius: 18px;
+      padding: 18px 16px 16px;
+      background: var(--panel);
+      backdrop-filter: blur(10px);
+      overflow: hidden;
+
+      border: 1px solid var(--borderSoft);
+      box-shadow:
+        0 0 0 1px rgba(120, 220, 255, 0.05) inset,
+        0 18px 50px rgba(0,0,0,0.45);
+
+      /* slow breathing glow */
+      animation: pulseGlow 8s ease-in-out infinite;
+    }
+
+    /* rotating gradient border (slow) */
+    .card::before{
+      content:"";
+      position:absolute;
+      inset:-2px;
+      border-radius: 20px;
+      background: conic-gradient(
+        from 0deg,
+        rgba(120,220,255,0.00),
+        rgba(120,220,255,0.18),
+        rgba(0,255,200,0.14),
+        rgba(120,220,255,0.00)
+      );
+      animation: spinBorder 26s linear infinite;
+      opacity: 0.70;
+      pointer-events:none;
+
+      -webkit-mask:
+        linear-gradient(#000 0 0) content-box,
+        linear-gradient(#000 0 0);
+      -webkit-mask-composite: xor;
+      mask-composite: exclude;
+      padding: 2px;
+    }
+
+    /* subtle shimmer */
+    .card::after{
+      content:"";
+      position:absolute;
+      inset: 0;
+      background: linear-gradient(
+        120deg,
+        transparent 0%,
+        rgba(255,255,255,0.05) 45%,
+        rgba(120,220,255,0.09) 50%,
+        rgba(255,255,255,0.05) 55%,
+        transparent 100%
+      );
+      transform: translateX(-140%) skewX(-18deg);
+      animation: shimmer 14s ease-in-out infinite;
+      opacity: 0.28;
+      pointer-events:none;
+    }
+
+    /* moving light sweep */
+    .sweep{
+      position:absolute;
+      inset:0;
+      pointer-events:none;
+      border-radius: 18px;
+      overflow:hidden;
+    }
+    .sweep i{
+      position:absolute;
+      top:-20%;
+      left:-30%;
+      width: 65%;
+      height: 140%;
+      background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(120,220,255,0.10),
+        rgba(0,255,200,0.08),
+        transparent
+      );
+      transform: rotate(12deg);
+      animation: sweep 18s ease-in-out infinite;
+      opacity: 0.45;
+      filter: blur(0.2px);
+    }
+
+    @keyframes pulseGlow{
+      0%, 100%{
+        box-shadow:
+          0 0 0 1px rgba(120, 220, 255, 0.05) inset,
+          0 18px 50px rgba(0,0,0,0.45),
+          0 0 20px rgba(120,220,255,0.07);
+      }
+      50%{
+        box-shadow:
+          0 0 0 1px rgba(120, 220, 255, 0.06) inset,
+          0 18px 50px rgba(0,0,0,0.45),
+          0 0 32px rgba(120,220,255,0.12);
+      }
+    }
+    @keyframes spinBorder{ to{ transform: rotate(360deg); } }
+    @keyframes shimmer{
+      0%   { transform: translateX(-140%) skewX(-18deg); opacity: 0.00; }
+      18%  { opacity: 0.22; }
+      50%  { opacity: 0.28; }
+      82%  { opacity: 0.16; }
+      100% { transform: translateX(140%) skewX(-18deg); opacity: 0.00; }
+    }
+    @keyframes sweep{
+      0%   { transform: translateX(-40%) rotate(12deg); opacity: 0.00; }
+      18%  { opacity: 0.50; }
+      50%  { opacity: 0.40; }
+      82%  { opacity: 0.24; }
+      100% { transform: translateX(220%) rotate(12deg); opacity: 0.00; }
+    }
+
+    .card h2{
+      margin: 0 0 14px;
+      font-size: 12px;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--muted);
+      font-weight: 650;
+      text-align: center;
+    }
+
+    .timerRow{
+      display:grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+    }
+
+    .tile{
+      border: 1px solid rgba(120, 220, 255, 0.14);
+      border-radius: 14px;
+      padding: 14px 10px;
+      background: var(--panel2);
+      box-shadow: 0 0 16px rgba(120, 220, 255, 0.08);
+
+      display:flex;
+      flex-direction: column;
+      align-items:center;
+      justify-content:center;
+      text-align:center;
+    }
+
+    .num{
+      font-size: clamp(20px, 4.2vw, 36px);
+      font-weight: 750;
+      letter-spacing: 0.04em;
+      color: var(--a);
+      text-shadow: 0 0 14px rgba(120,220,255,0.22);
+      width: 100%;
+      text-align: center;
+    }
+
+    .label{
+      margin-top: 6px;
+      font-size: 11px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--muted);
+      width: 100%;
+      text-align: center;
+    }
+
+    .quoteBox{
+      margin-top: 18px;
+      padding: 14px 14px 16px;
+      border-radius: 16px;
+      border: 1px solid rgba(0, 255, 200, 0.16);
+      background: rgba(5, 12, 20, 0.26);
+      position: relative;
+      overflow: hidden;
+    }
+    .quoteBox::after{
+      content:"";
+      position:absolute;
+      inset:0;
+      background: radial-gradient(600px 260px at 10% 0%, rgba(0,255,200,0.05), transparent 60%);
+      pointer-events:none;
+    }
+
+    .quoteTitle{
+      font-size: 11px;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: rgba(0, 255, 200, 0.70);
+      margin-bottom: 10px;
+      font-weight: 650;
+      text-align: center;
+    }
+
+    .quote{
+      font-size: clamp(14px, 1.8vw, 18px);
+      line-height: 1.5;
+      color: var(--text);
+      opacity: 1;
+      transition: opacity 500ms ease;
+      min-height: 2.2em;
+      position: relative;
+      z-index: 1;
+      text-align: center;
+    }
+    .fadeOut{ opacity: 0; }
+
+    .footer{
+      margin-top: 14px;
+      color: var(--muted);
+      font-size: 12px;
+      letter-spacing: 0.08em;
+      text-align: center;
+    }
+
+    /* ---------------- Mobile-first header behavior ---------------- */
+    @media (max-width: 720px){
+      .heroRow{
+        flex-direction: column;
+        gap: 12px;
+      }
+      .dividerV{ display:none; }
+
+      .name{ letter-spacing: 0.22em; }
+
+      body{ padding: 10px 0; }
+      .wrap{ width: min(720px, 94vw); padding: 14px 10px 18px; }
+
+      /* stack header cleanly */
+      .heroRow{
+        flex-direction: column;
+        gap: 12px;
+        margin-bottom: 14px;
+      }
+      .dividerV{ display:none; }
+      .heroText{
+        text-align: center;
+        max-width: 560px;
+      }
+      .title{
+        letter-spacing: 0.18em; /* reduce tracking on mobile */
+        font-size: 18px;
+        line-height: 1.15;
+      }
+      .subtitle{
+        letter-spacing: 0.14em;
+        font-size: 11px;
+      }
+
+      /* soften motion a bit for small screens */
+      .card::after{ opacity: 0.18; }
+      .sweep i{ opacity: 0.30; }
+      .tile{ padding: 12px 8px; }
+    }
+
+    /* Accessibility: respect reduced motion */
+    @media (prefers-reduced-motion: reduce){
+      .card, .card::before, .card::after, .sweep i, .particle{ animation: none !important; }
+      .quote{ transition: none !important; }
+    }
+
+    /* Modal */
+    .modalBackdrop{
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.62);
+      display: none;
+      place-items: center;
+      z-index: 50;
+      padding: 18px;
+    }
+    .modal{
+      width: min(720px, 92vw);
+      background: rgba(10, 18, 28, 0.92);
+      border: 1px solid rgba(0, 255, 200, 0.30);
+      border-radius: 18px;
+      padding: 22px 18px;
+      box-shadow:
+        0 0 0 1px rgba(0, 255, 200, 0.10) inset,
+        0 30px 80px rgba(0,0,0,0.65);
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .modal h3{
+      margin: 0 0 10px;
+      font-size: 14px;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: rgba(0, 255, 200, 0.82);
+    }
+    .modal p{
+      margin: 0 0 18px;
+      font-size: clamp(18px, 2.4vw, 26px);
+      color: var(--text);
+      line-height: 1.25;
+      text-shadow: 0 0 16px rgba(0, 255, 200, 0.18);
+    }
+    .btn{
+      appearance: none;
+      border: 1px solid rgba(120, 220, 255, 0.30);
+      background: rgba(5, 12, 20, 0.35);
+      color: var(--text);
+      border-radius: 14px;
+      padding: 10px 14px;
+      font-weight: 650;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: transform 120ms ease, border-color 120ms ease;
+    }
+    .btn:hover{ transform: translateY(-1px); border-color: rgba(0, 255, 200, 0.55); }
+
+    /* Confetti */
+    .confetti{
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 60;
+      overflow: hidden;
+      display: none;
+    }
+    .confetti span{
+      position: absolute;
+      top: -10%;
+      width: 10px;
+      height: 18px;
+      opacity: 0.9;
+      border-radius: 2px;
+      animation: fall linear forwards;
+      box-shadow: 0 0 12px rgba(255,255,255,0.08);
+    }
+    @keyframes fall{
+      to{
+        transform: translateY(120vh) rotate(720deg);
+        opacity: 0.95;
+      }
+    }
+  </style>
 </head>
 
 <body>
-  <div class="container">
-    <div class="title">TIME LEFT THIS YEAR</div>
-    <div class="subtitle">Execute the plan.</div>
+  <div class="particles" id="particles"></div>
 
-    <div class="row">
-      <div class="box"><span id="days"></span><br>days</div>
-      <div class="box"><span id="hours"></span><br>hours</div>
-      <div class="box"><span id="mins"></span><br>mins</div>
-      <div class="box"><span id="secs"></span><br>secs</div>
+  <div class="wrap">
+    <div class="heroRow">
+      <div class="nameBadge">
+        <div class="name" id="nameText">THE MAN PARTNERSHIP</div>
+      </div>
+
+      <div class="dividerV" aria-hidden="true"></div>
+
+      <div class="heroText">
+        <h1 class="title">BUILD WHAT OUTLIVES YOU</h1>
+        <p class="subtitle">Duability. Stability. Long Term Compouding. Repeat.</p>
+      </div>
     </div>
 
-    <div class="footer">
-  <div class="brand">THE MAN PARTNERSHIP</div>
-  <div class="tagline">Capital. Discipline. Execution.</div>
-</div>
-</body>
-  
-<script>
-const target = new Date(new Date().getFullYear(), 11, 31, 23, 59, 59);
+    <!-- IMPORTANT: Lifetime card is FIRST in DOM so it stays first on mobile too -->
+    <div class="grid">
+      <div class="card" id="lifeCard">
+        <div class="sweep"><i></i></div>
+        <h2>Your Lifetime</h2>
 
-function update() {
-  const now = new Date();
-  const diff = target - now;
+        <div class="timerRow" id="lifeTimer">
+          <div class="tile"><div class="num" id="l_days">0</div><div class="label">days</div></div>
+          <div class="tile"><div class="num" id="l_hours">0</div><div class="label">hours</div></div>
+          <div class="tile"><div class="num" id="l_mins">0</div><div class="label">mins</div></div>
+          <div class="tile"><div class="num" id="l_secs">0</div><div class="label">secs</div></div>
+        </div>
 
-  const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-  const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
-  const mins = Math.floor((diff / (1000 * 60)) % 60);
-  const secs = Math.floor((diff / 1000) % 60);
+        <div class="footer" id="lifeMeta"></div>
+      </div>
 
-  document.getElementById("days").textContent = days;
-  document.getElementById("hours").textContent = hours;
-  document.getElementById("mins").textContent = mins;
-  document.getElementById("secs").textContent = secs;
-}
+      <div class="card" id="yearCard">
+        <div class="sweep"><i></i></div>
+        <h2>Time Left This Year</h2>
 
-setInterval(update, 1000);
-update();
-</script>
+        <div class="timerRow" id="yearTimer">
+          <div class="tile"><div class="num" id="y_days">0</div><div class="label">days</div></div>
+          <div class="tile"><div class="num" id="y_hours">0</div><div class="label">hours</div></div>
+          <div class="tile"><div class="num" id="y_mins">0</div><div class="label">mins</div></div>
+          <div class="tile"><div class="num" id="y_secs">0</div><div class="label">secs</div></div>
+        </div>
 
+        <div class="quoteBox">
+          <div class="quoteTitle">Quote Feed</div>
+          <div class="quote" id="quoteText"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer" id="nowText"></div>
+  </div>
+
+  <div class="modalBackdrop" id="modalBackdrop" role="dialog" aria-modal="true">
+    <div class="modal">
+      <h3 id="modalTitle">Celebration</h3>
+      <p id="birthdayMessage">Message</p>
+      <button class="btn" id="closeModalBtn">Acknowledge</button>
+    </div>
+  </div>
+
+  <div class="confetti" id="confetti"></div>
+
+  <script>
+    // ====== CONFIG ======
+    const PROFILE = {
+      name: "THE MAN PARTNERSHIP",
+      dob: { day: 4, month: 5, year: 1997 }, // edit per person
+      lifespanYears: 90
+    };
+
+    const QUOTES = [
+      "Protect capital first. Ego pays no bills.",
+      "No A+ setup, no trade. Boredom is cheaper than drawdown.",
+      "Your edge is a process, not a mood.",
+      "If the risk is unclear, the trade is a ‘no’.",
+      "Discipline is doing the right thing even when you feel nothing.",
+      "One clean execution beats ten emotional ‘almosts’.",
+      "Detach from outcome. Attach to rules.",
+      "Consistency is a byproduct of constraints.",
+      "If you can’t explain the thesis, you don’t have one.",
+      "Time compounds what you repeat. Choose carefully."
+    ];
+
+    const QUOTE_INTERVAL_MS = 60_000;
+
+    // ====== helpers ======
+    const pad2 = (n) => String(n).padStart(2, "0");
+
+    function formatNow(d) {
+      const y = d.getFullYear();
+      const m = pad2(d.getMonth() + 1);
+      const day = pad2(d.getDate());
+      const hh = pad2(d.getHours());
+      const mm = pad2(d.getMinutes());
+      const ss = pad2(d.getSeconds());
+      return `${y}-${m}-${day} ${hh}:${mm}:${ss} (local)`;
+    }
+
+    function diffParts(ms) {
+      ms = Math.max(0, ms);
+      const totalSeconds = Math.floor(ms / 1000);
+      const days = Math.floor(totalSeconds / 86400);
+      const hours = Math.floor((totalSeconds % 86400) / 3600);
+      const mins = Math.floor((totalSeconds % 3600) / 60);
+      const secs = totalSeconds % 60;
+      return { days, hours, mins, secs };
+    }
+
+    function setText(id, value) {
+      const el = document.getElementById(id);
+      if (el) el.textContent = value;
+    }
+
+    // ====== targets ======
+    function getYearEndTarget(now) {
+      return new Date(now.getFullYear(), 11, 31, 23, 59, 59, 999);
+    }
+
+    function getNinetiethBirthdayTarget() {
+      const { day, month, year } = PROFILE.dob;
+      return new Date(year + PROFILE.lifespanYears, month - 1, day, 0, 0, 0, 0);
+    }
+
+    function getDobDate() {
+      const { day, month, year } = PROFILE.dob;
+      return new Date(year, month - 1, day, 0, 0, 0, 0);
+    }
+
+    // ====== celebrations ======
+    let birthdayShownThisSession = false;
+    let newYearShownThisSession = false;
+
+    function isBirthday(now) {
+      const { day, month } = PROFILE.dob;
+      return (now.getDate() === day) && (now.getMonth() + 1 === month);
+    }
+
+    function isNewYear(now) {
+      return (now.getMonth() === 0) && (now.getDate() === 1);
+    }
+
+    function showModal(kind, message) {
+      const backdrop = document.getElementById("modalBackdrop");
+      const msg = document.getElementById("birthdayMessage");
+      const title = document.getElementById("modalTitle");
+      const confetti = document.getElementById("confetti");
+
+      title.textContent = kind;
+      msg.textContent = message;
+
+      backdrop.style.display = "grid";
+      launchConfetti();
+      confetti.style.display = "block";
+    }
+
+    function closeModal() {
+      const backdrop = document.getElementById("modalBackdrop");
+      const confetti = document.getElementById("confetti");
+      backdrop.style.display = "none";
+      confetti.style.display = "none";
+      confetti.innerHTML = "";
+    }
+
+    document.getElementById("closeModalBtn").addEventListener("click", closeModal);
+    document.getElementById("modalBackdrop").addEventListener("click", (e) => {
+      if (e.target.id === "modalBackdrop") closeModal();
+    });
+
+    // Confetti
+    function launchConfetti() {
+      const confetti = document.getElementById("confetti");
+      confetti.innerHTML = "";
+
+      const pieces = 120;
+      for (let i = 0; i < pieces; i++) {
+        const s = document.createElement("span");
+        const left = Math.random() * 100;
+        const delay = Math.random() * 0.8;
+        const dur = 2.8 + Math.random() * 2.2;
+        const sizeW = 6 + Math.random() * 10;
+        const sizeH = 10 + Math.random() * 18;
+
+        s.style.left = left + "vw";
+        s.style.animationDelay = delay + "s";
+        s.style.animationDuration = dur + "s";
+        s.style.width = sizeW + "px";
+        s.style.height = sizeH + "px";
+
+        const colors = [
+          "rgba(120,220,255,0.90)",
+          "rgba(0,255,200,0.86)",
+          "rgba(255,255,255,0.75)",
+          "rgba(120,255,200,0.80)",
+          "rgba(0,200,255,0.80)"
+        ];
+        s.style.background = colors[Math.floor(Math.random() * colors.length)];
+        confetti.appendChild(s);
+      }
+    }
+
+    // ====== quotes ======
+    let quoteIndex = 0;
+
+    function setQuote(initial = false) {
+      const q = document.getElementById("quoteText");
+      if (!q) return;
+
+      if (initial) {
+        q.textContent = QUOTES[quoteIndex % QUOTES.length];
+        return;
+      }
+      q.classList.add("fadeOut");
+      setTimeout(() => {
+        quoteIndex = (quoteIndex + 1) % QUOTES.length;
+        q.textContent = QUOTES[quoteIndex];
+        q.classList.remove("fadeOut");
+      }, 520);
+    }
+
+    // ====== particles (slow, minimal) ======
+    function initParticles() {
+      const root = document.getElementById("particles");
+      if (!root) return;
+      root.innerHTML = "";
+
+      const count = 26;
+      for (let i = 0; i < count; i++) {
+        const p = document.createElement("div");
+        p.className = "particle" + (Math.random() < 0.35 ? " p2" : "");
+        p.style.left = (Math.random() * 100).toFixed(2) + "vw";
+        p.style.top = (40 + Math.random() * 80).toFixed(2) + "vh";
+        p.style.animationDuration = (22 + Math.random() * 18).toFixed(2) + "s";
+        p.style.animationDelay = (-Math.random() * 18).toFixed(2) + "s";
+        const size = (2 + Math.random() * 2.6).toFixed(2);
+        p.style.width = size + "px";
+        p.style.height = size + "px";
+        p.style.opacity = (0.16 + Math.random() * 0.22).toFixed(2);
+        root.appendChild(p);
+      }
+    }
+
+    // ====== loop ======
+    function tick() {
+      const now = new Date();
+      setText("nowText", `Now: ${formatNow(now)}`);
+      setText("nameText", PROFILE.name);
+
+      const yearTarget = getYearEndTarget(now);
+      const y = diffParts(yearTarget - now);
+      setText("y_days", y.days);
+      setText("y_hours", y.hours);
+      setText("y_mins", y.mins);
+      setText("y_secs", y.secs);
+
+      const lifeTarget = getNinetiethBirthdayTarget();
+      const l = diffParts(lifeTarget - now);
+      setText("l_days", l.days);
+      setText("l_hours", l.hours);
+      setText("l_mins", l.mins);
+      setText("l_secs", l.secs);
+
+      const dobDate = getDobDate();
+      const livedDays = Math.floor(Math.max(0, now - dobDate) / 86400000);
+      const lifeTargetStr = `${lifeTarget.getFullYear()}-${pad2(lifeTarget.getMonth()+1)}-${pad2(lifeTarget.getDate())}`;
+      document.getElementById("lifeMeta").textContent =
+        `90th birthday target: ${lifeTargetStr} | Days lived: ${livedDays.toLocaleString()} | Days remaining: ${Math.max(0, l.days).toLocaleString()}`;
+
+      // celebrations
+      if (!newYearShownThisSession && isNewYear(now)) {
+        newYearShownThisSession = true;
+        showModal("New Year Celebration", `Happy New Year ${now.getFullYear()}, ${PROFILE.name}. New year. New standards.`);
+      }
+      if (!birthdayShownThisSession && isBirthday(now)) {
+        birthdayShownThisSession = true;
+        showModal("Birthday Celebration", `Today is your birthday. Happy birthday, ${PROFILE.name}.`);
+      }
+    }
+
+    // init
+    initParticles();
+    setQuote(true);
+    tick();
+    setInterval(tick, 250);
+    setInterval(() => setQuote(false), QUOTE_INTERVAL_MS);
+  </script>
 </body>
 </html>
-
-
-
